@@ -117,7 +117,7 @@ provider "aws" {
 
 Let's start with launching an EC2 instance using the app AMI.
 We will need:
-- AMI ID ` `
+- AMI ID
 - `sre_key.pem` file
 - AWS keys setup is already done
 - Public IP
@@ -127,7 +127,7 @@ Add to the main.tf file the information from the AMI:
 
 ```
 resource "aws_instance" "app_instance" {
-    ami = "ami-0c6d0dba698fb80cd"
+    ami = "ami-IDNUMBER"
     instance_type = "t2.micro"
     associate_public_ip_address = true
     tags = {
@@ -136,7 +136,7 @@ resource "aws_instance" "app_instance" {
 }
 ```
 
-### Creating and Setting Up a VPC (SCRIPTING)
+## Creating and Setting Up a VPC (SCRIPTING)
 
 **(image)**
 Infrastructure Code
@@ -232,3 +232,54 @@ variable "rt_id"{
 ```
 
 7. Create a Security Group for our app
+```
+resource "aws_security_group" "app_group" {
+    name = "sre_akunma_tf_sg"
+    description = "Security group for app"
+    vpc_id = var.vpc_id
+    # Inbound rules
+    ingress {
+        description = "From my IP"
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["YOUR IP"]
+    }
+    ingress {
+        description = "Allow Port 3000"
+        from_port = 3000
+        to_port = 3000
+        protocol = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    ingress{
+        description = "Public Access"
+        from_port = 80
+        to_port = 80
+        protocol = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+    # Outbound rules
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+    tags = {
+        Name = "sre_akunma_tf_sg"
+    }
+}
+```
+8. In `variable.tf`, add the name and path of the key used to set up the app
+```
+variable "aws_key_name" {
+    default = "NAME"
+}
+
+variable "aws_key_path" {
+    default = "~/.ssh/NAME.pem"
+}
+```
