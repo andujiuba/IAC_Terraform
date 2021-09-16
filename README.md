@@ -2,11 +2,17 @@
 
 ![](img\terraform_icon.webp)
 
+# Terraform Orchestration
+## What is Terraform
+## Why Terraform
+
 Recommended to learn both Terraform and Anisible as companues may prefer one ver the other.
 Terraform is a much more simple program to use, and Anisible requires more resources.
 Terraform is lightwieght but not agentless
 
-## Installation of Terraform and Chocolaty
+## Setting Up Terraform
+
+### Installation of Terraform and Chocolaty
 
 You can download the binary from the following link:
 https://www.terraform.io/downloads.html When you have unzipped the binary file, there's no installer.
@@ -37,7 +43,7 @@ Should see below outcome if everything went well
 
 <br>
 
-## Main Commands
+### Main Commands
 ```bash
 Main commands:
   init          Prepare your working directory for other commands
@@ -73,22 +79,31 @@ Global options (use these before the subcommand, if any):
   -version      An alias for the "version" subcommand.
   ```
 
-## Terraform Orchestration
-## What is Terraform
-## Why Terraform
-## Setting Up Terraform
 ## Securing the AWS Keys for Terraform
 
+### Ceating an Env Variable
 
-Infrastructure Code
-- terraform plan
-- terraform apply
-- terraform destroy
+1. 
+![](img\env_step1.png)
+
+2. 
+![](img\env_step2.png)
+
+3. 
+![](img\env_step3.png)
+
+4. 
+![](img\env_step4.png)
 
 
-**Tasks:**
-- create env variable to secure AWS keys
-- Restart the terminal
+Repeat for the AWS secret key
+
+## Creating Resources on AWS
+
+### Setting Up App Instance using Terraform
+
+- env vars just created
+- restart the terminal
 - Create file called main.tf
 - Add the Code to initialise terraform with provider AWS
 
@@ -99,3 +114,121 @@ provider "aws" {
 }
 ```
 - Run this code with `terraform init`
+
+Let's start with launching an EC2 instance using the app AMI.
+We will need:
+- AMI ID ` `
+- `sre_key.pem` file
+- AWS keys setup is already done
+- Public IP
+- Type of instance `t2.micro`
+
+Add to the main.tf file the information from the AMI:
+
+```
+resource "aws_instance" "app_instance" {
+    ami = "ami-0c6d0dba698fb80cd"
+    instance_type = "t2.micro"
+    associate_public_ip_address = true
+    tags = {
+        Name = "sre_akunma_terraform_app"
+    }
+}
+```
+
+### Creating and Setting Up a VPC (SCRIPTING)
+
+**(image)**
+Infrastructure Code
+- terraform plan
+- terraform apply
+- terraform destroy
+
+We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
+
+1.  Create a VPC with CIDR block
+```
+resource "aws_vpc" "sre_akunma_vpc_tf" {
+    cidr_block = "10.101.0.0/16"
+    tags = {
+        Name = "sre_akunma_vpc_tf"
+    }
+}
+```
+
+2. Run `terraform plan` then `terraform apply` - the VPC should now be running
+
+3. Create a `variable.tf` file and place in the VPC ID 
+  - Get VPC ID from AWS **or** from terraform logs
+```
+variable "vpc_id" {
+    default = "vpc-IDNUMBER"
+}
+```
+
+4. Create internet gateway and attach the IG to the VPC
+```
+resource "aws_internet_gateway" "sre_akunma_tf_ig" {
+    vpc_id = var.vpc_id
+    tags = {
+        Name = "sre_akunma_tf_ig"
+    }
+}
+```
+  - Create a variable for the internet gateway ID, for future use
+```
+variable "ig_id" {
+    default = "igw-IDNUMBER"
+}
+```
+
+5. Create public subnet for `10.101.1.0/24`:
+```
+resource "aws_subnet" "sre_akunma_tf_sub" {
+    vpc_id = var.vpc_id
+    cidr_block = "10.101.1.0/24"
+    tags = {
+        Name = "sre_akunma_tf_sub"
+    }
+}
+```
+And make a variable:
+```
+variable "aws_pub_subnet" {
+    default = "subnet-IDNUMBER"
+}
+```
+
+6. Create route table
+```
+resource "aws_route_table" "sre_akunma_tf_rt" {
+    vpc_id = var.vpc_id
+    route = []
+    tags = {
+        Name = "sre_akunma_tf_rt"
+    }
+}
+```
+Edit route and insert your IG
+```
+resource "aws_route" "r" {
+    route_table_id = var.rt_id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id = var.ig_id
+}
+```
+Associate public subnet with route table
+```
+resource "aws_route_table_association" "pub" {
+    subnet_id = var.aws_pub_subnet
+    route_table_id = var.rt_id
+}
+```
+Add to `variable.tf` for the route table
+```
+variable "rt_id"{
+    default = "rtb-IDNUMBER"
+}
+```
+
+7. Create a Security Group for our app
