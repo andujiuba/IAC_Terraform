@@ -273,6 +273,13 @@ resource "aws_security_group" "app_group" {
     }
 }
 ```
+Add this as a variable
+```
+variable "sg_id" {
+    default = "sg-IDNUMBER"
+}
+```
+
 ### 8. In `variable.tf`, add the name and path of the key used to set up the app
 ```
 variable "aws_key_name" {
@@ -283,4 +290,27 @@ variable "aws_key_path" {
     default = "~/.ssh/NAME.pem"
 }
 ```
+
+### 9. Add code for starting up the EC2 instance in `main.tf`
+```
+resource "aws_instance" "app_instance" {
+    ami = var.webapp_ami_id
+    subnet_id = var.aws_pub_subnet
+    instance_type = "t2.micro"
+    associate_public_ip_address = true
+    tags = {
+        Name = "sre_akunma_terraform_app"
+    }
+    vpc_security_group_ids = [var.sg_id]
+    key_name = var.aws_key_name
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = var.aws_key_path
+        host = "${self.associate_public_ip_address}"
+    }
+}
+```
+
+
 ### After each step `terraform plan` and `terraform apply` to see the changes exectuted

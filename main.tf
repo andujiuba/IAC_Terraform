@@ -105,11 +105,20 @@ resource "aws_security_group" "app_group" {
 
 # Launching an EC2 instance using the app AMI and VPC.
 
-# resource "aws_instance" "app_instance" {
-#     ami = "ami-0c6d0dba698fb80cd"
-#     instance_type = "t2.micro"
-#     associate_public_ip_address = true
-#     tags = {
-#         Name = "sre_akunma_terraform_app"
-#     }
-# }
+resource "aws_instance" "app_instance" {
+    ami = var.webapp_ami_id
+    subnet_id = var.aws_pub_subnet
+    instance_type = "t2.micro"
+    associate_public_ip_address = true
+    tags = {
+        Name = "sre_akunma_terraform_app"
+    }
+    vpc_security_group_ids = [var.sg_id]
+    key_name = var.aws_key_name
+    connection {
+        type = "ssh"
+        user = "ubuntu"
+        private_key = var.aws_key_path
+        host = "${self.associate_public_ip_address}"
+    }
+}
