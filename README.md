@@ -1,6 +1,6 @@
 # Infastructure as Code Using Terraform 
 
-![img](img\terraform_icon.webp)
+![img](img/terraform_icon.webp)
 
 # Terraform Orchestration
 ## What is Terraform
@@ -84,19 +84,19 @@ Global options (use these before the subcommand, if any):
 ### Ceating an Env Variable
 
 ### 1. 
-![img](img\env_step1.png)
+![img](img/env_step1.png)
 
 ### 2. 
-![img](img\env_step2.png)
+![img](img/env_step2.png)
 
 ### 3. 
-![img](img\env_step3.png)
+![img](img/env_step3.png)
 
 ### 4. 
-![img](img\env_step4.png)
+![img](img/env_step4.png)
 
 
-Repeat for the AWS secret key
+Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
 
 ## Creating Resources on AWS
 
