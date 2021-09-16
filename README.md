@@ -96,7 +96,7 @@ Global options (use these before the subcommand, if any):
 ![img](img/env_step4.png)
 
 
-Repeat for the AWS secret key
+Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
 
 ## Creating Resources on AWS
 
