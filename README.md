@@ -136,7 +136,7 @@ resource "aws_instance" "app_instance" {
 }
 ```
 
-## Creating and Setting Up a VPC (SCRIPTING)
+## Creating and Setting Up a VPC - *Scripting*
 
 ![](img/terraform_map.png)
 
