@@ -1,6 +1,6 @@
 # Infastructure as Code Using Terraform 
 
-![](img\terraform_icon.webp)
+![img](img\terraform_icon.webp)
 
 # Terraform Orchestration
 ## What is Terraform
@@ -83,17 +83,17 @@ Global options (use these before the subcommand, if any):
 
 ### Ceating an Env Variable
 
-1. 
-![](img\env_step1.png)
+### 1. 
+![img](img\env_step1.png)
 
-2. 
-![](img\env_step2.png)
+### 2. 
+![img](img\env_step2.png)
 
-3. 
-![](img\env_step3.png)
+### 3. 
+![img](img\env_step3.png)
 
-4. 
-![](img\env_step4.png)
+### 4. 
+![img](img\env_step4.png)
 
 
 Repeat for the AWS secret key
@@ -146,7 +146,7 @@ Infrastructure Code
 
 We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
 
-1.  Create a VPC with CIDR block
+### 1.  Create a VPC with CIDR block
 ```
 resource "aws_vpc" "sre_akunma_vpc_tf" {
     cidr_block = "10.101.0.0/16"
@@ -156,9 +156,9 @@ resource "aws_vpc" "sre_akunma_vpc_tf" {
 }
 ```
 
-2. Run `terraform plan` then `terraform apply` - the VPC should now be running
+### 2. Run `terraform plan` then `terraform apply` - the VPC should now be running
 
-3. Create a `variable.tf` file and place in the VPC ID 
+### 3. Create a `variable.tf` file and place in the VPC ID 
   - Get VPC ID from AWS **or** from terraform logs
 ```
 variable "vpc_id" {
@@ -166,7 +166,7 @@ variable "vpc_id" {
 }
 ```
 
-4. Create internet gateway and attach the IG to the VPC
+### 4. Create internet gateway and attach the IG to the VPC
 ```
 resource "aws_internet_gateway" "sre_akunma_tf_ig" {
     vpc_id = var.vpc_id
@@ -182,7 +182,7 @@ variable "ig_id" {
 }
 ```
 
-5. Create public subnet for `10.101.1.0/24`:
+### 5. Create public subnet for `10.101.1.0/24`:
 ```
 resource "aws_subnet" "sre_akunma_tf_sub" {
     vpc_id = var.vpc_id
@@ -199,7 +199,7 @@ variable "aws_pub_subnet" {
 }
 ```
 
-6. Create route table
+### 6. Create route table
 ```
 resource "aws_route_table" "sre_akunma_tf_rt" {
     vpc_id = var.vpc_id
@@ -231,7 +231,7 @@ variable "rt_id"{
 }
 ```
 
-7. Create a Security Group for our app
+### 7. Create a Security Group for our app
 ```
 resource "aws_security_group" "app_group" {
     name = "sre_akunma_tf_sg"
@@ -273,7 +273,7 @@ resource "aws_security_group" "app_group" {
     }
 }
 ```
-8. In `variable.tf`, add the name and path of the key used to set up the app
+### 8. In `variable.tf`, add the name and path of the key used to set up the app
 ```
 variable "aws_key_name" {
     default = "NAME"
@@ -283,3 +283,4 @@ variable "aws_key_path" {
     default = "~/.ssh/NAME.pem"
 }
 ```
+### After each step `terraform plan` and `terraform apply` to see the changes exectuted
