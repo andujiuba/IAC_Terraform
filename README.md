@@ -140,11 +140,6 @@ resource "aws_instance" "app_instance" {
 
 ![](img/terraform_map.png)
 
-Infrastructure Code
-- terraform plan
-- terraform apply
-- terraform destroy
-
 We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
 
 ### 1.  Create a VPC with CIDR block
