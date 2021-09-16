@@ -111,7 +111,7 @@ resource "aws_instance" "app_instance" {
     instance_type = "t2.micro"
     associate_public_ip_address = true
     tags = {
-        Name = "sre_akunma_terraform_app"
+        Name = "sre_akunma_tf_app"
     }
     vpc_security_group_ids = [var.sg_id]
     key_name = var.aws_key_name
