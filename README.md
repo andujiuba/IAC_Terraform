@@ -1,10 +1,17 @@
 # Infastructure as Code Using Terraform 
 
-![img](img/terraform_icon.webp)
+![](img/terraform_icon.webp)
 
 # Terraform Orchestration
 ## What is Terraform
+
+Building infrastructure an a crucial part of creating a system. 
+- Itegration testing
+- Scripting
+
 ## Why Terraform
+
+![](img/terraform_with_ansible.jpg)
 
 Recommended to learn both Terraform and Anisible as companues may prefer one ver the other.
 Terraform is a much more simple program to use, and Anisible requires more resources.
@@ -84,16 +91,16 @@ Global options (use these before the subcommand, if any):
 ### Ceating an Env Variable
 
 ### 1. 
-![img](img/env_step1.png)
+![](img/env_step1.png)
 
 ### 2. 
-![img](img/env_step2.png)
+![](img/env_step2.png)
 
 ### 3. 
-![img](img/env_step3.png)
+![](img/env_step3.png)
 
 ### 4. 
-![img](img/env_step4.png)
+![](img/env_step4.png)
 
 
 Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
@@ -102,10 +109,10 @@ Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
 
 ### Setting Up App Instance using Terraform
 
-- env vars just created
-- restart the terminal
-- Create file called main.tf
-- Add the Code to initialise terraform with provider AWS
+- The two environment variables have just been created
+- We now need to restart the terminal
+- Create file called main.tf - this is where the EC2 instance will e built
+- Add this code to initialise terraform with provider AWS:
 
 ```
 provider "aws" {
@@ -123,7 +130,7 @@ We will need:
 - Public IP
 - Type of instance `t2.micro`
 
-Add to the main.tf file the information from the AMI:
+Add to the `main.tf` file the information from the AMI:
 
 ```
 resource "aws_instance" "app_instance" {
@@ -135,6 +142,7 @@ resource "aws_instance" "app_instance" {
     }
 }
 ```
+In the terminal, enter `terraform plan` then `terraform apply` to start up the instance.
 
 ## Creating and Setting Up a VPC - *Scripting*
 
@@ -309,3 +317,57 @@ resource "aws_instance" "app_instance" {
 ```
 
 ### After each step `terraform plan` and `terraform apply` to see the changes exectuted
+
+## Adding MongoDB to the System
+
+### 1.  Create a private subnet for the DB
+
+
+### 2. Add new subnet to route table
+
+
+### 3. Create a new Security Group for the DB
+
+
+### 4. 
+
+
+## Load Balancing
+
+**Tasks:**
+- create CloudWatch for app 
+- Monitoring-Load Balancer - Application ALB 
+- Network Load Balancer - together Autoscaling group
+- Add steps in `main.tf` to automate setting up the load balancer
+create load balancer 
+attach to ig 
+internet faceing 
+listen to port 80 0-65355 3000 
+22 for ip
+write script for this
+```
+resource "aws_lb" "akunma_tf_lb" {
+    name = "sre_akunma_tf_lb"
+    # It should be Internet facing
+    internal = false
+    load_balancer_type = "application"
+    security_groups = [var.sg_id]
+    subnets = var.aws_pub_subnet
+
+    access_logs {
+        bucket = ???
+        prefix = ???
+        enabled = ???
+    }
+
+    tags = {
+        Environment = ???
+    }
+}
+
+```
+
+
+## Using the `data` command
+
+
