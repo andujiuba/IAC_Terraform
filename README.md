@@ -3,13 +3,13 @@
 ![](img/terraform_icon.webp)
 
 # Terraform Orchestration
-## What is Terraform
+## What is Terraform?
 
 Building infrastructure an a crucial part of creating a system. 
 - Itegration testing
 - Scripting
 
-## Why Terraform
+## Why Terraform?
 
 ![](img/terraform_with_ansible.jpg)
 
@@ -22,17 +22,19 @@ Terraform is lightwieght but not agentless
 ### Installation of Terraform and Chocolaty
 
 You can download the binary from the following link:
-https://www.terraform.io/downloads.html When you have unzipped the binary file, there's no installer.
+https://www.terraform.io/downloads.html 
+When you have unzipped the binary file, there's no installer.
 
-should move the file to /usr/local/bin directory and set the Path as env var if necessary.
+After downloading, you should move the file to `/usr/local/bin` directory and set the Path as an environment variable if necessary.
 
-For Windows, install Chocolaty
+**For Windows**, install `Chocolaty` and follow the instructions on the page: <br>
 https://chocolatey.org/install
 
-we can also install it using chocolatey package managers
-`Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))`
-
-Open power shell in Admin mode
+We can also install it using chocolatey package managers:
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
+Open `PowerShell` in `Admin mode` by right clicking on the application and select **Open as Administrator**
 
 Paste the copied text into your shell and press Enter.
 
@@ -41,12 +43,12 @@ Wait a few seconds for the command to complete.
 If you don't see any errors, you are ready to use Chocolatey! Type choco or choco -? now, or see 
 Getting Started for usage instructions.
 
-Install Terraform `choco install terraform`
+Install Terraform: `choco install terraform`
 
-Check installation `terraform --version`
+Check installation: `terraform --version`
 
-Should see below outcome if everything went well
-`Terraform v1.0.4`
+Should see below outcome if everything went well:
+`Terraform v1.0.?`
 
 <br>
 
@@ -148,6 +150,10 @@ In the terminal, enter `terraform plan` then `terraform apply` to start up the i
 
 ![](img/terraform_map.png)
 
+(Desciption and context)
+
+<br>
+
 We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
 
 ### 1.  Create a VPC with CIDR block
@@ -203,7 +209,7 @@ variable "aws_pub_subnet" {
 }
 ```
 
-### 6. Create route table
+### 6. Create the route table
 ```
 resource "aws_route_table" "sre_akunma_tf_rt" {
     vpc_id = var.vpc_id
@@ -316,7 +322,9 @@ resource "aws_instance" "app_instance" {
 }
 ```
 
-### After each step `terraform plan` and `terraform apply` to see the changes exectuted
+### After each step, `terraform plan` and `terraform apply` to see the changes exectuted
+
+(The `terraform.tfstate.backup` file can help when looking for an object and its attributes. Rather than using the `variable.tf` file to recall stored values of an object, use `terraform.tfstate.backup` to find out what attributes can be referenced in the code)
 
 ## Adding MongoDB to the System
 
@@ -334,6 +342,10 @@ resource "aws_instance" "app_instance" {
 
 ## Load Balancing
 
+(Description and context)
+
+<br>
+
 **Tasks:**
 - create CloudWatch for app 
 - Monitoring-Load Balancer - Application ALB 
@@ -345,6 +357,7 @@ internet faceing
 listen to port 80 0-65355 3000 
 22 for ip
 write script for this
+
 ```
 resource "aws_lb" "akunma_tf_lb" {
     name = "sre_akunma_tf_lb"
@@ -370,4 +383,4 @@ resource "aws_lb" "akunma_tf_lb" {
 
 ## Using the `data` command
 
-
+(description and context)
