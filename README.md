@@ -5,6 +5,7 @@
 # Terraform Orchestration
 ## What is Terraform?
 
+Orchestration tool, better for setting up network infrastructu and spinning up machines using a cloud service provider
 Building infrastructure an a crucial part of creating a system. 
 - Itegration testing
 - Scripting
@@ -13,9 +14,15 @@ Building infrastructure an a crucial part of creating a system.
 
 ![](img/terraform_with_ansible.jpg)
 
+Building and updating infrastructure is much easier and quicker
+
+config management - ansible
+service orchestration - terraform
+
 Recommended to learn both Terraform and Anisible as companues may prefer one ver the other.
 Terraform is a much more simple program to use, and Anisible requires more resources.
 Terraform is lightwieght but not agentless
+Terraform is an automation tool, (one file can create a VPC, instance, auto-scaling group and load balancer)
 
 ## Setting Up Terraform
 
@@ -197,6 +204,7 @@ variable "ig_id" {
 resource "aws_subnet" "sre_akunma_tf_sub" {
     vpc_id = var.vpc_id
     cidr_block = "10.101.1.0/24"
+     map_public_ip_on_launch = "true"
     tags = {
         Name = "sre_akunma_tf_sub"
     }
@@ -331,13 +339,13 @@ resource "aws_instance" "app_instance" {
 ### 1.  Create a private subnet for the DB
 
 
-### 2. Add new subnet to route table
+### 2. Add new private subnet to route table
 
 
 ### 3. Create a new Security Group for the DB
 
 
-### 4. 
+### 4. Lauch instance
 
 
 ## Load Balancing
@@ -346,41 +354,131 @@ resource "aws_instance" "app_instance" {
 
 <br>
 
+Add steps in `main.tf` to automate setting up the load balancer and auto-scaling group
+
 **Tasks:**
-- create CloudWatch for app 
-- Monitoring-Load Balancer - Application ALB 
-- Network Load Balancer - together Autoscaling group
-- Add steps in `main.tf` to automate setting up the load balancer
-create load balancer 
-attach to ig 
-internet faceing 
-listen to port 80 0-65355 3000 
-22 for ip
-write script for this
+
+- create load balancer 
+- attach to ig 
+- internet faceing 
+- listen to port 80 0-65355 3000 
+- 22 for ip
+- write script for this
+
+### 1. Create a launch configuration
 
 ```
-resource "aws_lb" "akunma_tf_lb" {
-    name = "sre_akunma_tf_lb"
-    # It should be Internet facing
+resource "aws_launch_configuration" "app_launch_configuration" {
+    name = "sre_akunma_tf_lc"
+    image_id = var.webapp_ami_id
+    instance_type = "t2.micro"
+}
+```
+
+Make a variable for the `launch_config_name` in `variable.tf`
+
+### 2. Create a load balancer for the application
+
+```
+resource "aws_lb" "sre_akunma_tf_lb" {
+    name = "sre-akunma-tf-lb"
     internal = false
     load_balancer_type = "application"
-    security_groups = [var.sg_id]
-    subnets = var.aws_pub_subnet
-
-    access_logs {
-        bucket = ???
-        prefix = ???
-        enabled = ???
-    }
+    subnets = [
+        var.aws_pub_subnet,
+        var.aws_priv_subnet
+    ]
 
     tags = {
-        Environment = ???
+        Name = "sre_akunma_tf_lb"
+    }
+}
+```
+Create a variable for the load balancer ARN
+
+### 3. Create an instance target group
+
+must change the availability zone for the DB priv subnet bc load balacer cant have 2 subnets in same zone: `availability_zone = "eu-west-1b"`
+
+```
+resource "aws_lb_target_group" "sre_akunma_tg" {
+    name = "sre-akunma-tf-tg"
+    port = 80
+    protocol = "HTTP"
+    vpc_id = var.vpc_id
+
+    tags = {
+        Name = "sre_akunma_tf_tg"
+    }
+}
+```
+
+Create a variable for the target group ARN
+
+### 4. Create a listener and a listener group attachment
+
+First, add a variable `target_id` that holds the value for the instance ID.
+
+```
+    load_balancer_arn = var.lb_arn
+    port = 80
+    protocol = "HTTP"
+
+    default_action {
+        type = "forward"
+        target_group_arn = var.tg_arn
     }
 }
 
+resource "aws_lb_target_group_attachment" "sre_akunma_tg_att" {
+    target_group_arn = var.tg_arn
+    target_id = var.target_id
+    port = 80
+}
 ```
 
+### 5. Create an auto-scaling group
+
+```
+resource "aws_autoscaling_group" "sre_akunma_ASG_tf" {
+    name = "sre_akunma_ASG_tf"
+
+    min_size = 1
+    desired_capacity = 1
+    max_size = 3
+
+    vpc_zone_identifier = [
+        var.aws_pub_subnet,
+        var.aws_priv_subnet
+    ]
+
+    launch_configuration = var.launch_config_name
+}
+```
+
+Create a variable for the auto-scaling name you set
+
+### 6. Create an auto-scaling policy
+
+```
+resource "aws_autoscaling_policy" "akunma_AS_policy" {
+    name = "sre_akunma_AS_policy"
+    policy_type = "TargetTrackingScaling"
+    estimated_instance_warmup = 100
+    autoscaling_group_name = var.AS_name
+
+    target_tracking_configuration {
+        predefined_metric_specification {
+            predefined_metric_type = "ASGAverageCPUUtilization"
+        }
+        target_value = 50.0
+    }
+}
+```
 
 ## Using the `data` command
 
 (description and context)
+
+
+### `terraform apply -auto-approve` `terraform destroy target aws_instance.<NAME>`
