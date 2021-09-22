@@ -123,7 +123,7 @@ Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
 - Create file called main.tf - this is where the EC2 instance will e built
 - Add this code to initialise terraform with provider AWS:
 
-```
+```terrform
 provider "aws" {
 
     region = "eu-west-1"
@@ -141,7 +141,7 @@ We will need:
 
 Add to the `main.tf` file the information from the AMI:
 
-```
+```terrform
 resource "aws_instance" "app_instance" {
     ami = "ami-IDNUMBER"
     instance_type = "t2.micro"
@@ -164,7 +164,7 @@ In the terminal, enter `terraform plan` then `terraform apply` to start up the i
 We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
 
 ### 1.  Create a VPC with CIDR block
-```
+```terrform
 resource "aws_vpc" "sre_akunma_vpc_tf" {
     cidr_block = "10.101.0.0/16"
     tags = {
@@ -177,14 +177,14 @@ resource "aws_vpc" "sre_akunma_vpc_tf" {
 
 ### 3. Create a `variable.tf` file and place in the VPC ID 
   - Get VPC ID from AWS **or** from terraform logs
-```
+```terrform
 variable "vpc_id" {
     default = "vpc-IDNUMBER"
 }
 ```
 
 ### 4. Create internet gateway and attach the IG to the VPC
-```
+```terrform
 resource "aws_internet_gateway" "sre_akunma_tf_ig" {
     vpc_id = var.vpc_id
     tags = {
@@ -193,14 +193,14 @@ resource "aws_internet_gateway" "sre_akunma_tf_ig" {
 }
 ```
   - Create a variable for the internet gateway ID, for future use
-```
+```terrform
 variable "ig_id" {
     default = "igw-IDNUMBER"
 }
 ```
 
 ### 5. Create public subnet for `10.101.1.0/24`:
-```
+```terrform
 resource "aws_subnet" "sre_akunma_tf_sub" {
     vpc_id = var.vpc_id
     cidr_block = "10.101.1.0/24"
@@ -211,14 +211,14 @@ resource "aws_subnet" "sre_akunma_tf_sub" {
 }
 ```
 And make a variable:
-```
+```terrform
 variable "aws_pub_subnet" {
     default = "subnet-IDNUMBER"
 }
 ```
 
 ### 6. Create the route table
-```
+```terrform
 resource "aws_route_table" "sre_akunma_tf_rt" {
     vpc_id = var.vpc_id
     route = []
@@ -228,7 +228,7 @@ resource "aws_route_table" "sre_akunma_tf_rt" {
 }
 ```
 Edit route and insert your IG
-```
+```terrform
 resource "aws_route" "r" {
     route_table_id = var.rt_id
     destination_cidr_block = "0.0.0.0/0"
@@ -236,21 +236,21 @@ resource "aws_route" "r" {
 }
 ```
 Associate public subnet with route table
-```
+```terrform
 resource "aws_route_table_association" "pub" {
     subnet_id = var.aws_pub_subnet
     route_table_id = var.rt_id
 }
 ```
 Add to `variable.tf` for the route table
-```
+```terrform
 variable "rt_id"{
     default = "rtb-IDNUMBER"
 }
 ```
 
 ### 7. Create a Security Group for our app
-```
+```terrform
 resource "aws_security_group" "app_group" {
     name = "sre_akunma_tf_sg"
     description = "Security group for app"
@@ -292,14 +292,14 @@ resource "aws_security_group" "app_group" {
 }
 ```
 Add this as a variable
-```
+```terrform
 variable "sg_id" {
     default = "sg-IDNUMBER"
 }
 ```
 
 ### 8. In `variable.tf`, add the name and path of the key used to set up the app
-```
+```terrform
 variable "aws_key_name" {
     default = "NAME"
 }
@@ -310,7 +310,7 @@ variable "aws_key_path" {
 ```
 
 ### 9. Add code for starting up the EC2 instance in `main.tf`
-```
+```terrform
 resource "aws_instance" "app_instance" {
     ami = var.webapp_ami_id
     subnet_id = var.aws_pub_subnet
@@ -487,7 +487,7 @@ resource "aws_autoscaling_policy" "akunma_AS_policy" {
 
 ---
 
-# Performance Testing
+# Performance Testing (rewatch Monday pt 1)
 
 ## What is Perfromance Testing and why do we need it?
 - ensures system reacts in a timely manner and serves needs
@@ -503,6 +503,7 @@ Testing take a long time and is not a single step process
 - (img of iterative process against approach)
 The best method is to start small then scale up the testing. It usually takes 6 to 12 weeks to fully test a system, so thorough testing is imperitive.
 
+Testing can simulate *SQL injections* or *DDOS attacks* --> planning for the worst possible outcome. **LINKS**
 
 ## How to make an app highly available?
 - using multiple avalablity zones
@@ -517,6 +518,15 @@ There are different types of testing, spike, soak, load and stress testing
 ## What is a test environment?
 It is the environment just before pubublication where you can perform tests that simulate the live app.
 
+**PLAN:**
+- performance testing
+- load testing
+- soak testing
+- AWS Jenkins runs tests
+- CloudWatch metrics
+- use SNS/SQS
+- build a job where Jenkins does testing for us
+
 ---
 
 ## Download and Install Java
@@ -524,10 +534,14 @@ It is the environment just before pubublication where you can perform tests that
 
 https://devwithus.com/install-java-windows-10/
 
+Check Java is installed with `java --version` in th terminal.
+
 ## Install IntelliJ and Scala
 ![image](https://user-images.githubusercontent.com/88186581/134367948-9c0c5961-82cb-4027-9cd4-a35e7e5d6623.png)
 
 https://www.jetbrains.com/idea/download/#section=windows
+
+Add Scala plugin
 
 ## Download Gatling
 ![image](https://user-images.githubusercontent.com/88186581/134368057-85266995-1166-4108-85e6-0072eb221b80.png)
@@ -535,13 +549,46 @@ https://www.jetbrains.com/idea/download/#section=windows
 https://gatling.io/open-source/#downloadgatling
 https://www.blazemeter.com/blog/how-to-install-gatling-on-windows
 
+Keep the gatling folder in the `Program Files` folder within `User`.
+
 ### Why Gatling? 
-Gatling is used for performance testing and monitoring - it create tests in scala, gatling runs them and makes a series of graphs and charts to narrate how successful the test was
+Gatling is used for performance testing and monitoring - it create tests in scala, gatling runs them and makes a series of graphs and charts to narrate how successful the test was.
+This is why Gatling is so desirable --> it is an incredibly user-friendly and cohesive system. 
 
 ## Instal Maven (for Java)
 ![image](https://user-images.githubusercontent.com/88186581/134368130-9a233123-b24d-4518-882c-316703391daf.png)
 
 https://mkyong.com/maven/how-to-install-maven-in-windows/
+
+## Setting up performance testing
+
+(**breakdown img/gif**)
+
+Open IntelliJ in **Admin** mode and open a new projects within the Gatling folder.
+
+(Gatling file directories
+- bin: .bat batch file, .sh shell file
+- conf: config for gatling project, recorder records http requests to any server you want to record
+- lib: libraries available
+- results: results/outcomes from tests after being run
+- target: OOP, contains classes
+- user files: resources and simlations, records actions requests tests)
+
+1. `cd` into `bin` folder
+2. Run `gatling.bat`(For Windows, if you are using a Mac or Linux machine, type in `gatling.sh`). If you have set up the env var and opened IntelliJ as Admin, you should get the response:
+```bash
+GATLING_HOME is set to "C:*LOCATION_OF_ENVIRONMENT_VARIABLE*"
+JAVA = "java"
+```
+3. Choose the `computerdatabase.BasicSimulation` operation and enter the number when prompted
+4. After `Select run description`, type in whatever name is appropriate --> I used SRE Akunma Performance Testing for this session
+5. Requests and their outcomes will start to be printed in the terminal
+  - Since there have been no changes to the project 
+6. In the `results` file, find the file with the name provided in the descirption --> look up `index.html`
+7. `index.html` provides a detailed report that we can see in the browser --> copy the **absolute file path** and paste in a browser
+This is what you should see: **IMG OF GATLING PAGE W LABELS**
+
+8. In `user-files` --> `simulations` --> `computerdatabase` --> `BasicSimulation` there is a breakdown of the series of tests the project is run with. The information given in index.html is based on these tests.
 
 ---
 
