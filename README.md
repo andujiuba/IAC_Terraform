@@ -378,6 +378,7 @@ resource "aws_launch_configuration" "app_launch_configuration" {
 Make a variable for the `launch_config_name` in `variable.tf`
 
 ### 2. Create a load balancer for the application
+![image](https://user-images.githubusercontent.com/88186581/134367239-2c047889-c823-4ac6-ba1e-fa303c84662d.png)
 
 ```
 resource "aws_lb" "sre_akunma_tf_lb" {
@@ -438,6 +439,7 @@ resource "aws_lb_target_group_attachment" "sre_akunma_tg_att" {
 ```
 
 ### 5. Create an auto-scaling group
+![image](https://user-images.githubusercontent.com/88186581/134367097-5ff0d844-caf8-4e01-8aa3-a4749617b2ca.png)
 
 ```
 resource "aws_autoscaling_group" "sre_akunma_ASG_tf" {
@@ -508,22 +510,27 @@ different types of testing, spike, soak, load
 
 # ***ask kieron what his question was***
 
-Test environment
+Test environment?
 env just before pub,
 where you can perform tests
 identical to live app
 
 ## Download and Install Java
+![image](https://user-images.githubusercontent.com/88186581/134367692-2b57f177-d6c6-492d-ae82-b19991b0e4a5.png)
 
 https://devwithus.com/install-java-windows-10/
 
 ## Install IntelliJ and Scala
+![image](https://user-images.githubusercontent.com/88186581/134367948-9c0c5961-82cb-4027-9cd4-a35e7e5d6623.png)
 
 ## Download Gatling
+![image](https://user-images.githubusercontent.com/88186581/134368057-85266995-1166-4108-85e6-0072eb221b80.png)
+
 why gatling? used for performance testing and monitoring - create tests in scala, gatling runs them and makes a series of graphs and charts to narrate how successful the test was
 
 
 ## Instal Maven (for Java)
+![image](https://user-images.githubusercontent.com/88186581/134368130-9a233123-b24d-4518-882c-316703391daf.png)
 
 https://mkyong.com/maven/how-to-install-maven-in-windows/
 
