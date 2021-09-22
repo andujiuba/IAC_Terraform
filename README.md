@@ -485,35 +485,39 @@ resource "aws_autoscaling_policy" "akunma_AS_policy" {
 
 ### `terraform apply -auto-approve` `terraform destroy target aws_instance.<NAME>`
 
+---
+
 # Performance Testing
 
+## What is Perfromance Testing and why do we need it?
+- ensures system reacts in a timely manner and serves needs
+- maps out user experience 
+- monitors cpu utilisation
+- logs any downtime
 
-performance testing:
-ensures system reacts in a timely manner and serves needs
-user experience: 
-cpu utilisation
-downtime
+**The ultimate goal of testing is to improve the user journey.**
+We want to test every single step of the user journey and ensure that there are no obstacles.
+- (img of the user journey)
 
-The ultimate goal of testing is to improve the user journey.
-
-We want to test every single step og the user journey (img of the user journey)
-
-Testing take a long time and is not a single step process (img of iterative process against approach)
-Start small then scale up testing
-Usually takes 6 to 12 weeks to fully test
+Testing take a long time and is not a single step process 
+- (img of iterative process against approach)
+The best method is to start small then scale up the testing. It usually takes 6 to 12 weeks to fully test a system, so thorough testing is imperitive.
 
 
-how to make app highly available?
-using multiple avalablity zones
-diffreent regions have different vpcS LOAD BALANCERS
-different types of testing, spike, soak, load
+## How to make an app highly available?
+- using multiple avalablity zones
+- diffreent regions have different vpcs 
+- LOAD BALANCERS
 
-# ***ask kieron what his question was***
+## How to test
+There are different types of testing, spike, soak, load and stress testing
 
-Test environment?
-env just before pub,
-where you can perform tests
-identical to live app
+- (img of graphing)
+
+### ***ask kieron what his question was***
+
+## What is a test environment?
+It is the environment just before pubublication where you can perform tests that simulate the live app.
 
 ## Download and Install Java
 ![image](https://user-images.githubusercontent.com/88186581/134367692-2b57f177-d6c6-492d-ae82-b19991b0e4a5.png)
@@ -523,11 +527,16 @@ https://devwithus.com/install-java-windows-10/
 ## Install IntelliJ and Scala
 ![image](https://user-images.githubusercontent.com/88186581/134367948-9c0c5961-82cb-4027-9cd4-a35e7e5d6623.png)
 
+https://www.jetbrains.com/idea/download/#section=windows
+
 ## Download Gatling
 ![image](https://user-images.githubusercontent.com/88186581/134368057-85266995-1166-4108-85e6-0072eb221b80.png)
 
-why gatling? used for performance testing and monitoring - create tests in scala, gatling runs them and makes a series of graphs and charts to narrate how successful the test was
+https://gatling.io/open-source/#downloadgatling
+https://www.blazemeter.com/blog/how-to-install-gatling-on-windows
 
+### Why Gatling? 
+Gatling is used for performance testing and monitoring - it create tests in scala, gatling runs them and makes a series of graphs and charts to narrate how successful the test was
 
 ## Instal Maven (for Java)
 ![image](https://user-images.githubusercontent.com/88186581/134368130-9a233123-b24d-4518-882c-316703391daf.png)
@@ -546,10 +555,8 @@ when reating an autoscaling we provide a min and max no of instances
 when autoscalinf kicks in new instances spin up
 app load balancer attached to ig and vpc
 when traffic increases node is balances between instances
-#lod balancer redirectes traffic to active instances so no instance gets overwhelmed
+load balancer redirectes traffic to active instances so no instance gets overwhelmed
 as automatically ajusts computaional resources
-
-4 types of performance testing: load, stress, spike, soak
 
 **DIAGRAM FOR CW AND AUTOSCALING**
 CW triggers event after observing the traffic
