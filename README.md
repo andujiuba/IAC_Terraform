@@ -544,19 +544,19 @@ Gatling is used for performance testing and monitoring - it create tests in scal
 https://mkyong.com/maven/how-to-install-maven-in-windows/
 
 ---
-**Rough notes**
-What should we be monitoring about our app?
-internet facing vs internal
-internet facing -- RAM CPU load remaining disk space network load
+
+## What should we be monitoring about our app?
+### Internet Facing vs Internal
+Internet facing --> RAM CPU load remaining disk space network load
 Network traffic, CPU, etc. Automate reactions to situations
 
-Get charged for max no. of instances that spin up --. need a policy for min/max policy,
-when reating an autoscaling we provide a min and max no of instances
-when autoscalinf kicks in new instances spin up
-app load balancer attached to ig and vpc
-when traffic increases node is balances between instances
-load balancer redirectes traffic to active instances so no instance gets overwhelmed
-as automatically ajusts computaional resources
+## Autoscaling Policies
+The problem with autoscaling is that you will get charged for the max no. of instances that spin up --> there is need for a policy for min/max traffic load.
+
+When creating an autoscaling group we provide a min and max no. of instances. When autoscaling kicks in and new instances spin up for the app. The load balancer attached to IG and VPC then balances node between instances. The load balancer redirectes traffic to active instances so no instance gets overwhelmed.
+
+The autoscaling group automatically adjusts computaional resources when needed to, but it does not automatically reduce the resources, which is why we need to create a policy for this.
+
 
 **DIAGRAM FOR CW AND AUTOSCALING**
 CW triggers event after observing the traffic
