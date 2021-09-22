@@ -512,12 +512,12 @@ The best method is to start small then scale up the testing. It usually takes 6 
 ## How to test
 There are different types of testing, spike, soak, load and stress testing
 
-- (img of graphing)
-
-### ***ask kieron what his question was***
+- (img of graphs)
 
 ## What is a test environment?
 It is the environment just before pubublication where you can perform tests that simulate the live app.
+
+---
 
 ## Download and Install Java
 ![image](https://user-images.githubusercontent.com/88186581/134367692-2b57f177-d6c6-492d-ae82-b19991b0e4a5.png)
