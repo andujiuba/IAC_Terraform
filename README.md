@@ -123,7 +123,7 @@ Repeat these steps for the **AWS_SECRECT_ACCESS_KEY**
 - Create file called main.tf - this is where the EC2 instance will e built
 - Add this code to initialise terraform with provider AWS:
 
-```terrform
+```terraform
 provider "aws" {
 
     region = "eu-west-1"
@@ -141,7 +141,7 @@ We will need:
 
 Add to the `main.tf` file the information from the AMI:
 
-```terrform
+```terraform
 resource "aws_instance" "app_instance" {
     ami = "ami-IDNUMBER"
     instance_type = "t2.micro"
@@ -164,7 +164,7 @@ In the terminal, enter `terraform plan` then `terraform apply` to start up the i
 We are creating a new VPC from AWS using Terraform. The steps are nearly identical to the ones in the `AWS_VPC_Networking` repo.
 
 ### 1.  Create a VPC with CIDR block
-```terrform
+```terraform
 resource "aws_vpc" "sre_akunma_vpc_tf" {
     cidr_block = "10.101.0.0/16"
     tags = {
@@ -177,14 +177,14 @@ resource "aws_vpc" "sre_akunma_vpc_tf" {
 
 ### 3. Create a `variable.tf` file and place in the VPC ID 
   - Get VPC ID from AWS **or** from terraform logs
-```terrform
+```terraform
 variable "vpc_id" {
     default = "vpc-IDNUMBER"
 }
 ```
 
 ### 4. Create internet gateway and attach the IG to the VPC
-```terrform
+```terraform
 resource "aws_internet_gateway" "sre_akunma_tf_ig" {
     vpc_id = var.vpc_id
     tags = {
@@ -193,14 +193,14 @@ resource "aws_internet_gateway" "sre_akunma_tf_ig" {
 }
 ```
   - Create a variable for the internet gateway ID, for future use
-```terrform
+```terraform
 variable "ig_id" {
     default = "igw-IDNUMBER"
 }
 ```
 
 ### 5. Create public subnet for `10.101.1.0/24`:
-```terrform
+```terraform
 resource "aws_subnet" "sre_akunma_tf_sub" {
     vpc_id = var.vpc_id
     cidr_block = "10.101.1.0/24"
@@ -211,14 +211,14 @@ resource "aws_subnet" "sre_akunma_tf_sub" {
 }
 ```
 And make a variable:
-```terrform
+```terraform
 variable "aws_pub_subnet" {
     default = "subnet-IDNUMBER"
 }
 ```
 
 ### 6. Create the route table
-```terrform
+```terraform
 resource "aws_route_table" "sre_akunma_tf_rt" {
     vpc_id = var.vpc_id
     route = []
@@ -228,7 +228,7 @@ resource "aws_route_table" "sre_akunma_tf_rt" {
 }
 ```
 Edit route and insert your IG
-```terrform
+```terraform
 resource "aws_route" "r" {
     route_table_id = var.rt_id
     destination_cidr_block = "0.0.0.0/0"
@@ -236,21 +236,21 @@ resource "aws_route" "r" {
 }
 ```
 Associate public subnet with route table
-```terrform
+```terraform
 resource "aws_route_table_association" "pub" {
     subnet_id = var.aws_pub_subnet
     route_table_id = var.rt_id
 }
 ```
 Add to `variable.tf` for the route table
-```terrform
+```terraform
 variable "rt_id"{
     default = "rtb-IDNUMBER"
 }
 ```
 
 ### 7. Create a Security Group for our app
-```terrform
+```terraform
 resource "aws_security_group" "app_group" {
     name = "sre_akunma_tf_sg"
     description = "Security group for app"
@@ -292,14 +292,14 @@ resource "aws_security_group" "app_group" {
 }
 ```
 Add this as a variable
-```terrform
+```terraform
 variable "sg_id" {
     default = "sg-IDNUMBER"
 }
 ```
 
 ### 8. In `variable.tf`, add the name and path of the key used to set up the app
-```terrform
+```terraform
 variable "aws_key_name" {
     default = "NAME"
 }
@@ -310,7 +310,7 @@ variable "aws_key_path" {
 ```
 
 ### 9. Add code for starting up the EC2 instance in `main.tf`
-```terrform
+```terraform
 resource "aws_instance" "app_instance" {
     ami = var.webapp_ami_id
     subnet_id = var.aws_pub_subnet
@@ -367,7 +367,7 @@ Add steps in `main.tf` to automate setting up the load balancer and auto-scaling
 
 ### 1. Create a launch configuration
 
-```
+```terraform
 resource "aws_launch_configuration" "app_launch_configuration" {
     name = "sre_akunma_tf_lc"
     image_id = var.webapp_ami_id
@@ -380,7 +380,7 @@ Make a variable for the `launch_config_name` in `variable.tf`
 ### 2. Create a load balancer for the application
 ![image](https://user-images.githubusercontent.com/88186581/134367239-2c047889-c823-4ac6-ba1e-fa303c84662d.png)
 
-```
+```terraform
 resource "aws_lb" "sre_akunma_tf_lb" {
     name = "sre-akunma-tf-lb"
     internal = false
@@ -401,7 +401,7 @@ Create a variable for the load balancer ARN
 
 must change the availability zone for the DB priv subnet bc load balacer cant have 2 subnets in same zone: `availability_zone = "eu-west-1b"`
 
-```
+```terraform
 resource "aws_lb_target_group" "sre_akunma_tg" {
     name = "sre-akunma-tf-tg"
     port = 80
@@ -420,7 +420,7 @@ Create a variable for the target group ARN
 
 First, add a variable `target_id` that holds the value for the instance ID.
 
-```
+```terraform
     load_balancer_arn = var.lb_arn
     port = 80
     protocol = "HTTP"
@@ -441,7 +441,7 @@ resource "aws_lb_target_group_attachment" "sre_akunma_tg_att" {
 ### 5. Create an auto-scaling group
 ![image](https://user-images.githubusercontent.com/88186581/134367097-5ff0d844-caf8-4e01-8aa3-a4749617b2ca.png)
 
-```
+```terraform
 resource "aws_autoscaling_group" "sre_akunma_ASG_tf" {
     name = "sre_akunma_ASG_tf"
 
@@ -462,7 +462,7 @@ Create a variable for the auto-scaling name you set
 
 ### 6. Create an auto-scaling policy
 
-```
+```terraform
 resource "aws_autoscaling_policy" "akunma_AS_policy" {
     name = "sre_akunma_AS_policy"
     policy_type = "TargetTrackingScaling"
@@ -488,6 +488,10 @@ resource "aws_autoscaling_policy" "akunma_AS_policy" {
 ---
 
 # Performance Testing (rewatch Monday pt 1)
+
+Part of the **AUTOMATION SERIES**: Gatling highlighted
+
+**DIAGRAM FOR AUTOMATION W GATLING, AWS, CW, S3, DOCKER, JENKINS w links to repos**
 
 ## What is Perfromance Testing and why do we need it?
 - ensures system reacts in a timely manner and serves needs
@@ -592,18 +596,20 @@ This is what you should see: **IMG OF GATLING PAGE W LABELS**
 
 ### *We will do this again, this time selecting an advanced simulation*
 
-1. After running `gatling.bat`, choose the last simulation option prompted which should be titled: `computerdatabase.advanced.AdvancedSimulationStep05`
-2. Add a description: *Sparta Advanced Performance Testing*
-3. Open up the index page using the `index.html` file located within the selected simulation in the `results` file.
+9. After running `gatling.bat`, choose the last simulation option prompted which should be titled: `computerdatabase.advanced.AdvancedSimulationStep05`
+10. Add a description: *Sparta Advanced Performance Testing*
+11. Open up the index page using the `index.html` file located within the selected simulation in the `results` file.
 **IMG OF new user-file directory**
-4. `user-files` --> `simulations` --> `computerdatabase` --> `advanced`, open the simulation that was just run.
+12. `user-files` --> `simulations` --> `computerdatabase` --> `advanced`, open the simulation that was just run.
 
 Compare the different environments the two simulations are run in and look at the results that are given. Changing the pause times or the number of users at a time is the best way to test the resilience of the app.
 
 *But how should we decide on the parameters that we measure the system against?* <br>
 You can search the average response time for most websites and match it against the response time for own website.
 
-Gtaling provides us with two options: HAR file and HA Proxy
+Gatling provides us with two options: HAR file and HA Proxy
+
+(**HAR and HA INFO**)
 
 ## Running Tests Based on Own Server
 (**img of Jenkins main menu**)
@@ -633,6 +639,23 @@ JAVA = "java"
 14. You should see  everything that you did on the webpage while it was recorded (including all passwords entered, all pages loaded etc.)
 15. Run `gatling.bat` and select the Class you created --> open the `index.html` file in the web browser and see the results
 
+## Running Tests with Node App
+
+1. Set up and run the app (see ***AMI repo***) and `ssh` into the VM
+2. Add DB_HOST environment variable and `npm start`
+3. Follow the same steps as above to record activity on app (steps **2-5**, then step **11**). Record:
+    - Visiting fibonacci page
+    - Going to and from home page
+    - Visiting the /posts page
+4. Convert the HAR files individually in `recorder.bat`
+5. Run all with `gatling.bat`
+Results: (**IMG**)
+Changing the measurements: 
+
+
+As you can see, increasing the number of users severely impacts the performance of the app. In order to combat this, autoscaling groups and load balancers are used when setting up the app (***link to terraform and AWS intro***).
+
+
 ---
 
 ## What should we be monitoring about our app?
@@ -647,11 +670,26 @@ When creating an autoscaling group we provide a min and max no. of instances. Wh
 
 The autoscaling group automatically adjusts computaional resources when needed to, but it does not automatically reduce the resources, which is why we need to create a policy for this.
 
+---
+
+# CloudWatch
+
+Part of the **AUTOMATION SERIES**: CW highlighted
+
+**DIAGRAM FOR AUTOMATION W GATLING, AWS, CW, S3, DOCKER, JENKINS w links to repos**
 
 **DIAGRAM FOR CW AND AUTOSCALING**
 CW triggers event after observing the traffic
 this is make sure user doesnt notice change in load
 inastnace attached to autoscaling group
 
+## Scaling Policies
 
-**DIAGRAM FOR AUTOMATION W GATLING, AWS, CW, S3, DOCKER, JENKINS**
+
+## AWS Simple Notification Service (SNS)
+
+### A2A
+### A2P
+
+## AWS Simple Queue Service (SQS)
+
