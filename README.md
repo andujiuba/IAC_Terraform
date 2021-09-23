@@ -560,11 +560,12 @@ This is why Gatling is so desirable --> it is an incredibly user-friendly and co
 
 https://mkyong.com/maven/how-to-install-maven-in-windows/
 
-## Setting up performance testing
+## Setting Up Performance Testing in Gatling
 
 (**breakdown img/gif**)
 
 Open IntelliJ in **Admin** mode and open a new projects within the Gatling folder.
+The application that is provided in this exercise is given by Gatling to help visulaise and test out its functionalities and the interface.
 
 (Gatling file directories
 - bin: .bat batch file, .sh shell file
@@ -576,19 +577,61 @@ Open IntelliJ in **Admin** mode and open a new projects within the Gatling folde
 
 1. `cd` into `bin` folder
 2. Run `gatling.bat`(For Windows, if you are using a Mac or Linux machine, type in `gatling.sh`). If you have set up the env var and opened IntelliJ as Admin, you should get the response:
-```bash
+```
 GATLING_HOME is set to "C:*LOCATION_OF_ENVIRONMENT_VARIABLE*"
 JAVA = "java"
 ```
 3. Choose the `computerdatabase.BasicSimulation` operation and enter the number when prompted
-4. After `Select run description`, type in whatever name is appropriate --> I used SRE Akunma Performance Testing for this session
+4. After `Select run description`, type in whatever name is appropriate --> I used *SRE Akunma Performance Testing* for this session
 5. Requests and their outcomes will start to be printed in the terminal
   - Since there have been no changes to the project 
 6. In the `results` file, find the file with the name provided in the descirption --> look up `index.html`
 7. `index.html` provides a detailed report that we can see in the browser --> copy the **absolute file path** and paste in a browser
 This is what you should see: **IMG OF GATLING PAGE W LABELS**
-
 8. In `user-files` --> `simulations` --> `computerdatabase` --> `BasicSimulation` there is a breakdown of the series of tests the project is run with. The information given in index.html is based on these tests.
+
+### *We will do this again, this time selecting an advanced simulation*
+
+1. After running `gatling.bat`, choose the last simulation option prompted which should be titled: `computerdatabase.advanced.AdvancedSimulationStep05`
+2. Add a description: *Sparta Advanced Performance Testing*
+3. Open up the index page using the `index.html` file located within the selected simulation in the `results` file.
+**IMG OF new user-file directory**
+4. `user-files` --> `simulations` --> `computerdatabase` --> `advanced`, open the simulation that was just run.
+
+Compare the different environments the two simulations are run in and look at the results that are given. Changing the pause times or the number of users at a time is the best way to test the resilience of the app.
+
+*But how should we decide on the parameters that we measure the system against?* <br>
+You can search the average response time for most websites and match it against the response time for own website.
+
+Gtaling provides us with two options: HAR file and HA Proxy
+
+## Running Tests Based on Own Server
+(**img of Jenkins main menu**)
+
+1. Go onto your own web server (I am using the Jenkins Project used in ***SRE_Jenkins***)
+2. Right-click on the web-page for your server and select `Inspect` (**IMG OF INSPECT POPUP**)
+3. Go to `Network` --> there should be no activity
+4. Click box to `Peserve log`
+5. Click on the clear button on the left and then the recording button beside it
+6. Back in IntelliJ, enter the `BasicSimulation` file in the `computerdatabase` folder and change the `.baseurl` code to your server
+7. `cd` into `bin` again and run `recoder.bat` (or `recorder.sh` for Mac/Linux). You should see:
+```
+GATLING_HOME is set to "C:*LOCATION_OF_ENVIRONMENT_VARIABLE*"
+JAVA = "java"
+```
+8. A new window will pop up. (**IMG OF POPUP**)
+  - Recorder mode: HAR Converter
+  - HAR File: TBD
+9. We want to convert data from `recoder.bat` into a HAR file
+10. Go back to the webpage of your server with the `Inspect` open --> make activity on page by logging in etc.
+11. In `Network`, click the `Export HAR file` button located underneath the `Application` tab
+12. Back in the Gatling Recorder window, add the new HAR file that was just recorded
+  - Give it an appropriate Class Name (e.g. AkunmaSpartaTest)
+  - Leave Output as it is
+  - Click `Start` in bottom right corner
+13. Go back to `simulations` under `user-files` --> you should find the new Class you just created (**IMG**)
+14. You should see  everything that you did on the webpage while it was recorded (including all passwords entered, all pages loaded etc.)
+15. Run `gatling.bat` and select the Class you created --> open the `index.html` file in the web browser and see the results
 
 ---
 
